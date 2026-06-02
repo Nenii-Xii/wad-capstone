@@ -1,65 +1,64 @@
-// File: src/index.js
-
-// 1. Muat konfigurasi dan jalur (routes) yang sudah kita buat tadi
-const config  = require('./config');
+// File: src/index.js (Versi Sempurna Minggu 2)
+const config = require('./config');
 const express = require('express');
-const routes  = require('./routes');
+const routes = require('./routes');
+const tasksRoutes = require('./routes/tasks.routes');
+const setupSwagger = require('./docs/swagger');
 
-// --- Inisialisasi Express App ----------------------------------------
-const app = express(); // Membangun kerangka restoran (aplikasi)
+const app = express();
 
-// --- Middleware Global (Satpam Pemeriksa) ----------------------------
-// Memastikan aplikasi bisa membaca data berformat JSON
+// ─── Middleware Global ───────────────────────────────────────
 app.use(express.json());
-
-// Memastikan aplikasi bisa membaca data dari form (URL-encoded)
 app.use(express.urlencoded({ extended: true }));
 
-// Mencatat setiap pengunjung yang datang (Logging sederhana)
+// Logging middleware (Mencatat request masuk)
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(`${req.method} ${req.path} -> ${res.statusCode} (${duration}ms)`);
+    console.log(`${req.method} ${req.path} → ${res.statusCode} (${duration}ms)`);
   });
-  next(); // Lanjut ke proses berikutnya
+  next();
 });
 
-// --- Routes (Membuka Buku Menu) --------------------------------------
-// Route untuk mengecek kesehatan server (langsung di root)
-app.use('/', routes);
+// ─── Routes (Buku Menu) ───────────────────────────────────────
+app.use('/', routes); // Akses langsung root (e.g. /health)
+app.use('/api', routes); // Jalur lama: /api/info, /api/echo/:msg
+app.use('/api/v1/tasks', tasksRoutes); // Jalur BARU: CRUD Tasks v1
 
-// Route untuk fitur utama dengan awalan /api
-app.use('/api', routes);
+// ─── Swagger UI (Dokumentasi Otomatis) ───────────────────────
+setupSwagger(app);
 
-// --- 404 Handler (Menu Tidak Ditemukan) ------------------------------
-// Menangkap pengunjung yang mencari URL aneh-aneh
+// ─── 404 Handler (Route Tidak Ketemu) ────────────────────────
 app.use((req, res) => {
   res.status(404).json({
-    error:   'Not Found',
-    message: `Route ${req.method} ${req.path} tidak ditemukan.`,
-    hint:    'Kunjungi GET /api/info untuk melihat daftar endpoint yang tersedia.',
+    error: {
+      code: 'NOT_FOUND',
+      message: `Route ${req.method} ${req.path} tidak ditemukan.`,
+      hint: 'Kunjungi GET /api/docs untuk melihat dokumentasi API resmi.',
+    },
   });
 });
 
-// --- Error Handler Global (Manajer Penanganan Masalah) ---------------
-// Kalau ada kode yang rusak/error, larinya ke sini (Kode 500)
+// ─── Error Handler Global (Manajer Penanganan Masalah) ───────
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);
   res.status(500).json({
-    error:   'Internal Server Error',
-    // Cuma kasih tahu detail error kalau kita lagi mode 'development' (nge-build)
-    message: config.nodeEnv === 'development' ? err.message : 'Terjadi kesalahan di server.',
+    error: {
+      code: 'INTERNAL_ERROR',
+      message: config.nodeEnv === 'development' ? err.message : 'Terjadi kesalahan di server.',
+    },
   });
 });
 
-// --- Start Server (Buka Restoran!) -----------------------------------
+// ─── Start Server ────────────────────────────────────────────
 app.listen(config.port, () => {
-  console.log('-'.repeat(50));
-  console.log(` ${config.appName} v${config.version}`);
-  console.log(` Environment : ${config.nodeEnv}`);
-  console.log(` Server      : http://localhost:${config.port}`);
-  console.log('-'.repeat(50));
+  console.log('─'.repeat(50));
+  console.log(` 🚀 ${config.appName} v${config.version}`);
+  console.log(` 🌐 Environment : ${config.nodeEnv}`);
+  console.log(` 📡 Server      : http://localhost:${config.port}`);
+  console.log(` 📄 Docs        : http://localhost:${config.port}/api/docs`);
+  console.log('─'.repeat(50));
 });
 
-module.exports = app; // Diekspor agar nanti bisa di-testing
+module.exports = app;
