@@ -27,7 +27,7 @@ const options = {
             description: { type: 'string', maxLength: 1000, example: 'Mempelajari cara validasi input dengan Joi' },
             status: { type: 'string', enum: ['todo', 'in_progress', 'done'], default: 'todo' },
             priority: { type: 'string', enum: ['low', 'medium', 'high'], default: 'medium' },
-            dueDate: { type: 'string', format: 'date-time', example: '2024-12-31T00:00:00Z' },
+            dueDate: { type: 'string', format: 'date-time', example: '2026-12-31T00:00:00Z' },
           },
         },
         Task: {
@@ -67,7 +67,7 @@ const options = {
         },
       },
     },
-    // Menulis dokumentasi rute langsung di sini agar aman dari eror spasi YAML
+    // Hanya menyisakan rute yang valid dan benar agar tidak bentrok
     paths: {
       '/health': {
         get: {
@@ -98,26 +98,10 @@ const options = {
           },
           responses: { 201: { description: 'Task berhasil dibuat' }, 400: { description: 'Data tidak valid' } }
         }
-      },
-      '/tasks': {
-        get: {
-          summary: 'Ambil daftar task dengan pagination, filtering, dan sorting',
-          tags: ['Tasks'],
-          responses: { 200: { description: 'Berhasil mengambil daftar task' } }
-        },
-        post: {
-          summary: 'Buat task baru',
-          tags: ['Tasks'],
-          requestBody: {
-            required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTask' } } }
-          },
-          responses: { 201: { description: 'Task berhasil dibuat' }, 400: { description: 'Data tidak valid' } }
-        }
       }
     }
   },
-  apis: [], // Kosongkan ini agar dia tidak membaca komentar file lain yang rusak
+  apis: [], 
 };
 
 const swaggerSpec = swaggerJsdoc(options);

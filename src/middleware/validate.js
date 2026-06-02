@@ -6,8 +6,7 @@
 const validate = (schema, source = 'body') => {
  return (req, res, next) => {
  const { error, value } = schema.validate(req[source], {
- abortEarly: false, // Kumpulkan SEMUA error, bukan berhenti di error
-pertama,
+ abortEarly: false, // Kumpulkan SEMUA error, bukan berhenti di error pertama
  stripUnknown: true, // Hapus field yang tidak ada di schema (keamanan)
  convert: true, // Konversi tipe otomatis (string '10' → number 10)
  });
