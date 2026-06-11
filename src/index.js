@@ -4,6 +4,8 @@ const express = require('express');
 const routes = require('./routes');
 const tasksRoutes = require('./routes/tasks.routes');
 const setupSwagger = require('./docs/swagger');
+const errorHandler = require('./middleware/errorHandler');
+const usersRoutes = require('./routes/users.routes');
 
 const app = express();
 
@@ -25,6 +27,7 @@ app.use((req, res, next) => {
 app.use('/', routes); // Akses langsung root (e.g. /health)
 app.use('/api', routes); // Jalur lama: /api/info, /api/echo/:msg
 app.use('/api/v1/tasks', tasksRoutes); // Jalur BARU: CRUD Tasks v1
+app.use('/api/v1/users', usersRoutes); // Jalur BARU: CRUD Users v1
 
 // ─── Swagger UI (Dokumentasi Otomatis) ───────────────────────
 setupSwagger(app);
@@ -50,6 +53,8 @@ app.use((err, req, res, next) => {
     },
   });
 });
+
+app.use(errorHandler);
 
 // ─── Start Server ────────────────────────────────────────────
 app.listen(config.port, () => {
