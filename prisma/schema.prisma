@@ -60,6 +60,22 @@ model Task {
   @@map("tasks")
 }
 
+// —— Model baru: RefreshToken ——————————————————————————————————————
+   model RefreshToken {
+     id        Int      @id @default(autoincrement())
+     token     String   @unique @db.VarChar(512)
+     userId    Int
+     expiresAt DateTime
+     isRevoked Boolean  @default(false)
+     createdAt DateTime @default(now())
+
+     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+     @@index([token])
+     @@index([userId])
+     @@map("refresh_tokens")
+   }
+
 // —— Enum ————————————————————————————————————————————————————
 // Di MySQL, Prisma mengimplementasikan enum sebagai tipe ENUM native
 enum Status {
