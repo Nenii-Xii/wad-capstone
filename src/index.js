@@ -24,14 +24,12 @@ app.use('/api/v1/users', usersRoutes);
 
 // —— Update error handler: tangani error dari authService ——————————
 app.use((err, req, res, next) => {
-  // Error dengan statusCode dari authService / rute manual
   if (err.statusCode) {
     return res.status(err.statusCode).json({
       error: { code: err.code || 'AUTH_ERROR', message: err.message },
     });
   }
 
-  // Prisma P2002: email duplikat (sudah ada user dengan email tersebut)
   if (err.code === 'P2002') {
     return res.status(409).json({
       error: { code: 'DUPLICATE_RESOURCE', message: 'Data sudah digunakan.' },
