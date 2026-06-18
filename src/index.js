@@ -5,8 +5,9 @@ const setupSwagger = require('./docs/swagger');
 const authRoutes   = require('./routes/auth.routes');
 const tasksRoutes  = require('./routes/tasks.routes');
 const usersRoutes  = require('./routes/users.routes');
+const subtasksRoutes = require('./routes/subtask.routes');
 const authenticate = require('./middleware/authenticate');
-
+const subtaskCtrl = require('./controllers/subtask.controller');
 const app = express();
 app.use(express.json());
 
@@ -21,6 +22,8 @@ app.use('/auth', authRoutes);
 app.use('/api/v1', authenticate);
 app.use('/api/v1/tasks', tasksRoutes);
 app.use('/api/v1/users', usersRoutes);
+app.get('/api/v1/tasks/:id/subtasks', subtaskCtrl.getSubtasksByTaskId);
+app.use('/api/v1/tasks/subtasks', subtasksRoutes);
 
 // —— Update error handler: tangani error dari authService ——————————
 app.use((err, req, res, next) => {

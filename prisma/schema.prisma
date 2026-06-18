@@ -16,10 +16,10 @@ model User {
   password  String   @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  
   tasks         Task[]
   refreshTokens RefreshToken[] // <-- Jembatan balik ditaruh di sini ya!
-
+  subtasks Subtask[]
   @@map("users")
 }
 
@@ -52,6 +52,7 @@ model Task {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  subtasks    Subtask[]
   // Index untuk mempercepat query filter umum
   @@index([userId])
   @@index([status])
@@ -74,6 +75,25 @@ model RefreshToken {
   @@index([token])
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+// —— Model Tambahan: Subtask (Neni Galuh Putri Anyeler) ————————————————————
+model Subtask {
+  id           Int      @id @default(autoincrement())
+  title        String   @db.VarChar(200)
+  isCompleted  Boolean  @default(false)
+  parentTaskId Int
+  userId       Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relasi hubungan ke Task utama dan User yang membuat
+  task         Task     @relation(fields: [parentTaskId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([parentTaskId])
+  @@index([userId])
+  @@map("subtasks")
 }
 
 // —— Enum ————————————————————————————————————————————————————
